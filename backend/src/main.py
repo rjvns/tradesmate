@@ -52,16 +52,24 @@ def home():
     return jsonify({
         'message': 'TradesMate API',
         'version': '1.0.0',
-        'status': 'running'
+        'status': 'running',
+        'timestamp': datetime.utcnow().isoformat()
     })
 
 @app.route('/health')
 def health_check():
     """Health check endpoint for Railway"""
-    return jsonify({
-        'status': 'healthy',
-        'timestamp': datetime.utcnow().isoformat()
-    }), 200
+    try:
+        return jsonify({
+            'status': 'healthy',
+            'timestamp': datetime.utcnow().isoformat(),
+            'message': 'TradesMate API is running'
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
 
 @app.route('/api/dashboard')
 def dashboard():
