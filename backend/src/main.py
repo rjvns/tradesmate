@@ -29,13 +29,9 @@ app.config['MAX_CONTENT_LENGTH'] = int(os.getenv('MAX_CONTENT_LENGTH', 26214400)
 # Initialize database with app
 db.init_app(app)
 
-# Create database tables (only if not in production startup)
-if not os.getenv('RAILWAY_ENVIRONMENT'):
-    with app.app_context():
-        try:
-            db.create_all()
-        except Exception as e:
-            print(f"Database initialization error: {e}")
+# Create database tables
+with app.app_context():
+    db.create_all()
 
 # Import and register blueprints
 from routes.quotes import quotes_bp
