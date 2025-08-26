@@ -15,13 +15,13 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://localhost:5001',
+        target: process.env.VITE_API_URL || 'https://tradesmate-production.up.railway.app',
         changeOrigin: true,
       }
     }
   },
   define: {
-    'process.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'http://localhost:5001')
+    'process.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'https://tradesmate-production.up.railway.app')
   }
 })
 
