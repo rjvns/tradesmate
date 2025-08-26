@@ -55,6 +55,14 @@ def home():
         'status': 'running'
     })
 
+@app.route('/health')
+def health_check():
+    """Health check endpoint for Railway"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.utcnow().isoformat()
+    }), 200
+
 @app.route('/api/dashboard')
 def dashboard():
     """Dashboard data for the frontend"""

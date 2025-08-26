@@ -143,3 +143,4 @@ curl https://your-railway-app.railway.app/api/quotes/
 - Railway docs: https://docs.railway.app
 - Vercel docs: https://vercel.com/docs
 - TradesMate issues: Create GitHub issue
+

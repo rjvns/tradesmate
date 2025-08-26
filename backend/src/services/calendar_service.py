@@ -130,3 +130,4 @@ class CalendarService:
                 'success': False,
                 'error': f'Failed to find available slots: {str(e)}'
             }
+

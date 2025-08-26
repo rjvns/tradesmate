@@ -719,3 +719,4 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
 };
 
 export default SettingsScreen;
+

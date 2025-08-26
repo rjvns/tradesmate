@@ -41,3 +41,4 @@ def create_calendar_event():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
