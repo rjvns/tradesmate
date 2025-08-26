@@ -4,7 +4,7 @@ Quotes API routes for TradesMate
 
 from flask import Blueprint, request, jsonify
 from datetime import datetime, timedelta
-from main import db
+from database import db
 from models.user import User
 from models.quote import Quote, Job
 from services.ai_service import AIService
@@ -219,6 +219,134 @@ def delete_quote(quote_id):
             'success': True,
             'message': 'Quote deleted successfully'
         })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@quotes_bp.route('/<int:quote_id>/duplicate', methods=['POST'])
+def duplicate_quote(quote_id):
+    """Duplicate an existing quote"""
+    try:
+        original = Quote.query.get_or_404(quote_id)
+        
+        # Create a new quote based on the original
+        new_quote = Quote(
+            user_id=original.user_id,
+            customer_name=original.customer_name,
+            customer_email=original.customer_email,
+            customer_phone=original.customer_phone,
+            customer_address=original.customer_address,
+            job_description=f"Copy of: {original.job_description}",
+            job_type=original.job_type,
+            urgency=original.urgency,
+            labour_hours=original.labour_hours,
+            labour_rate=original.labour_rate,
+            materials_cost=original.materials_cost,
+            subtotal=original.subtotal,
+            vat_amount=original.vat_amount,
+            total_amount=original.total_amount,
+            materials=original.materials,
+            status='draft',
+            quote_number=ai_service.generate_quote_number(),
+            valid_until=datetime.utcnow() + timedelta(days=30)
+        )
+        
+        db.session.add(new_quote)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Quote duplicated successfully',
+            'quote': new_quote.to_dict()
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@quotes_bp.route('/stats', methods=['GET'])
+def get_quote_stats():
+    """Get quote statistics"""
+    try:
+        user = User.query.first()  # Demo: get first user
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        total = Quote.query.filter_by(user_id=user.id).count()
+        draft = Quote.query.filter_by(user_id=user.id, status='draft').count()
+        sent = Quote.query.filter_by(user_id=user.id, status='sent').count()
+        accepted = Quote.query.filter_by(user_id=user.id, status='accepted').count()
+        
+        # Calculate expired quotes
+        expired = Quote.query.filter(
+            Quote.user_id == user.id,
+            Quote.valid_until < datetime.utcnow(),
+            Quote.status != 'accepted'
+        ).count()
+        
+        # Calculate total value
+        total_value = db.session.query(db.func.sum(Quote.total_amount)).filter_by(user_id=user.id).scalar() or 0
+        
+        return jsonify({
+            'total': total,
+            'draft': draft,
+            'sent': sent,
+            'accepted': accepted,
+            'expired': expired,
+            'total_value': float(total_value)
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@quotes_bp.route('/create', methods=['POST'])
+def create_quote():
+    """Create a new quote manually"""
+    try:
+        data = request.get_json()
+        user = User.query.first()  # Demo: get first user
+        
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Calculate totals
+        labour_cost = float(data.get('labour_hours', 0)) * float(data.get('labour_rate', user.hourly_rate))
+        materials_cost = float(data.get('materials_cost', 0))
+        subtotal = labour_cost + materials_cost
+        vat_rate = 0.20  # 20% VAT
+        vat_amount = subtotal * vat_rate
+        total_amount = subtotal + vat_amount
+        
+        quote = Quote(
+            user_id=user.id,
+            customer_name=data.get('customer_name'),
+            customer_email=data.get('customer_email'),
+            customer_phone=data.get('customer_phone'),
+            customer_address=data.get('customer_address'),
+            job_description=data.get('job_description'),
+            job_type=data.get('job_type', 'general'),
+            urgency=data.get('urgency', 'normal'),
+            labour_hours=float(data.get('labour_hours', 0)),
+            labour_rate=float(data.get('labour_rate', user.hourly_rate)),
+            materials_cost=materials_cost,
+            subtotal=round(subtotal, 2),
+            vat_amount=round(vat_amount, 2),
+            total_amount=round(total_amount, 2),
+            materials=str(data.get('materials', [])),
+            status='draft',
+            quote_number=ai_service.generate_quote_number(),
+            valid_until=datetime.utcnow() + timedelta(days=30)
+        )
+        
+        db.session.add(quote)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Quote created successfully',
+            'quote': quote.to_dict()
+        }), 201
         
     except Exception as e:
         db.session.rollback()

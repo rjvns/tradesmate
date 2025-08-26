@@ -13,10 +13,14 @@ class AIService:
     """Service for AI-powered quote generation and analysis"""
     
     def __init__(self):
-        self.client = OpenAI(
-            api_key=os.getenv('OPENAI_API_KEY'),
-            base_url=os.getenv('OPENAI_API_BASE')
-        )
+        api_key = os.getenv('OPENAI_API_KEY', 'demo-key')
+        if api_key and api_key != 'demo-key':
+            self.client = OpenAI(
+                api_key=api_key,
+                base_url=os.getenv('OPENAI_API_BASE', 'https://api.openai.com/v1')
+            )
+        else:
+            self.client = None  # Demo mode - use mock responses
     
     def generate_quote_from_transcript(self, transcript, user_trade_type="Electrician", hourly_rate=45.0):
         """
@@ -71,6 +75,10 @@ Respond with valid JSON only:
 }}"""
 
         try:
+            if self.client is None:
+                # Demo mode - return mock response
+                return self._generate_mock_quote(transcript, user_trade_type, hourly_rate)
+            
             response = self.client.chat.completions.create(
                 model="gpt-4",
                 messages=[
@@ -234,4 +242,64 @@ Respond with valid JSON only:
         import random
         random_suffix = random.randint(1000, 9999)
         return f"TM-{timestamp}-{random_suffix}"
+    
+    def _generate_mock_quote(self, transcript, user_trade_type="Electrician", hourly_rate=45.0):
+        """Generate a mock quote for demo purposes"""
+        # Simple mock quote generation
+        import random
+        
+        # Extract some basic info from transcript
+        transcript_lower = transcript.lower()
+        
+        # Mock customer extraction
+        customer_name = "Demo Customer"
+        if "for" in transcript_lower:
+            # Try to extract customer name after "for"
+            words = transcript.split()
+            for i, word in enumerate(words):
+                if word.lower() == "for" and i + 1 < len(words):
+                    customer_name = words[i + 1].title()
+                    break
+        
+        # Mock job type detection
+        if any(word in transcript_lower for word in ["kitchen", "socket", "outlet"]):
+            job_type = "Kitchen electrical work"
+            labour_hours = random.uniform(4, 8)
+            materials_cost = random.uniform(150, 300)
+        elif any(word in transcript_lower for word in ["bathroom", "fan", "extractor"]):
+            job_type = "Bathroom electrical work"
+            labour_hours = random.uniform(2, 4)
+            materials_cost = random.uniform(80, 200)
+        else:
+            job_type = "General electrical work"
+            labour_hours = random.uniform(2, 6)
+            materials_cost = random.uniform(100, 250)
+        
+        # Calculate costs
+        labour_cost = labour_hours * hourly_rate
+        subtotal = labour_cost + materials_cost
+        vat_amount = subtotal * 0.20
+        total_amount = subtotal + vat_amount
+        
+        return {
+            'success': True,
+            'quote_data': {
+                'customer_name': customer_name,
+                'customer_phone': '',
+                'customer_address': '',
+                'job_description': transcript,
+                'job_type': job_type,
+                'urgency': 'normal',
+                'labour_hours': round(labour_hours, 1),
+                'labour_rate': hourly_rate,
+                'materials_cost': round(materials_cost, 2),
+                'subtotal': round(subtotal, 2),
+                'vat_amount': round(vat_amount, 2),
+                'total_amount': round(total_amount, 2),
+                'materials': ['Standard electrical materials'],
+                'confidence': 0.8,
+                'scheduling_suggestion': f"This {job_type.lower()} should take approximately {labour_hours:.1f} hours to complete.",
+                'notes': "This is a demo quote generated for testing purposes."
+            }
+        }
 

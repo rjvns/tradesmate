@@ -1,9 +1,9 @@
 """
-Quote, Job, and Invoice models for TradesMate application
+Quote, Job, and Invoice models for TradesMate
 """
 
-from datetime import datetime
-from main import db
+from datetime import datetime, timedelta
+from database import db
 
 class Quote(db.Model):
     """Quote model for customer quotes"""

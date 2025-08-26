@@ -3,7 +3,7 @@ User API routes for TradesMate
 """
 
 from flask import Blueprint, request, jsonify
-from main import db
+from database import db
 from models.user import User
 
 user_bp = Blueprint('user', __name__)
