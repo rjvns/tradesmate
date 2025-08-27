@@ -74,5 +74,3 @@ export const useOptimisticUpdate = (asyncAction) => {
 
   return [state, execute];
 };
-
-

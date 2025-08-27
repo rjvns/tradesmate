@@ -29,7 +29,7 @@ cd /app/backend\n\
 echo "Starting TradesMate API on port ${PORT:-8000}..."\n\
 echo "Environment: $FLASK_ENV"\n\
 echo "Python path: $PYTHONPATH"\n\
-exec gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 1 --timeout 120 --access-logfile - --error-logfile - working_main:app\n\
+exec gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 1 --timeout 120 --access-logfile - --error-logfile - src.simple_robust_main:app\n\
 ' > /app/start.sh && chmod +x /app/start.sh
 
 # Expose the port (for documentation, Railway handles the actual port mapping)
@@ -41,3 +41,4 @@ EXPOSE 8000
 
 # Start the application
 CMD ["/app/start.sh"]
+

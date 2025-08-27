@@ -525,5 +525,3 @@ const EnhancedDashboard = ({ user, onNavigate }) => {
 };
 
 export default EnhancedDashboard;
-
-

@@ -189,5 +189,3 @@ const CardSkeleton = ({ className = '' }) => {
 
 export { LoadingSpinner, SkeletonLoader, CardSkeleton };
 export default LoadingSpinner;
-
-

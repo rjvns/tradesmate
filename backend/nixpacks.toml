@@ -1,4 +1,0 @@
-[phases.setup]
-nixPkgs = ["python311"]
-[start]
-cmd = "cd backend && python -m gunicorn --bind 0.0.0.0:$PORT working_main:app"

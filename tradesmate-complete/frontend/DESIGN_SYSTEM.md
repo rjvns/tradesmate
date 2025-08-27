@@ -338,5 +338,3 @@ TradesMate's design system is built on the principles of **accessibility-first d
 ---
 
 **This design system represents industry-leading UX practices and serves as the foundation for TradesMate's 10/10 user experience.**
-
-

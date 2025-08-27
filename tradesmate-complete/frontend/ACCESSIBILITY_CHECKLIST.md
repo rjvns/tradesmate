@@ -286,5 +286,3 @@ describe('Modal Accessibility', () => {
 ---
 
 **This checklist ensures TradesMate meets and exceeds WCAG AAA standards, providing an inclusive experience for all users.**
-
-
