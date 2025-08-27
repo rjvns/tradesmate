@@ -2,6 +2,7 @@ FROM python:3.11-slim
 
 # Set working directory
 WORKDIR /app
+# Build timestamp: 2025-08-27
 
 # Install system dependencies
 RUN apt-get update && \
@@ -10,13 +11,13 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
-COPY tradesmate-complete/requirements.txt .
+COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entire backend directory
-COPY tradesmate-complete/backend/ ./backend/
+COPY backend/ ./backend/
 
 # Set environment variables
 ENV FLASK_ENV=production
