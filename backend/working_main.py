@@ -26,6 +26,7 @@ def dashboard():
 
 if __name__ == '__main__':
     # Use Railway's PORT environment variable, fallback to 5000
+    import os
     port = int(os.environ.get('PORT', 5000))
     # Bind to 0.0.0.0 so Railway can reach it
     app.run(host='0.0.0.0', port=port, debug=False)
