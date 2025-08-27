@@ -44,7 +44,7 @@ def health_check():
         return jsonify({
             'status': 'healthy',
             'timestamp': datetime.utcnow().isoformat(),
-            'message': 'TradesMate API is running'
+            'message': 'TradesMate API is running (robust version)'
         }), 200
     except Exception as e:
         return jsonify({
