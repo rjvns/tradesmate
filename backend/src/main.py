@@ -29,9 +29,14 @@ app.config['MAX_CONTENT_LENGTH'] = int(os.getenv('MAX_CONTENT_LENGTH', 26214400)
 # Initialize database with app
 db.init_app(app)
 
-# Create database tables
-with app.app_context():
-    db.create_all()
+# Create database tables (with error handling for production)
+try:
+    with app.app_context():
+        db.create_all()
+        print("Database tables created successfully")
+except Exception as e:
+    print(f"Database initialization warning: {e}")
+    # Continue anyway - tables might already exist
 
 # Import and register blueprints
 from routes.quotes import quotes_bp

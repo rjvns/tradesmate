@@ -21,15 +21,15 @@ COPY backend/ ./backend/
 # Set environment variables
 ENV FLASK_ENV=production
 ENV PYTHONPATH=/app/backend
-ENV PORT=8000
 
-# Create a simple startup script
+# Create a simple startup script that uses Railway's PORT variable
 RUN echo '#!/bin/bash\n\
 cd /app/backend\n\
-# Use the PORT variable provided by Railway, default to 8000\n\
-APP_PORT=${PORT:-8000}\n\
-echo "Starting TradesMate API on port $APP_PORT..."\n\
-gunicorn --bind 0.0.0.0:$APP_PORT --workers 1 --timeout 120 --access-logfile - --error-logfile - src.main:app\n\
+# Railway provides PORT environment variable\n\
+echo "Starting TradesMate API on port ${PORT:-8000}..."\n\
+echo "Environment: $FLASK_ENV"\n\
+echo "Python path: $PYTHONPATH"\n\
+exec gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 1 --timeout 120 --access-logfile - --error-logfile - src.main:app\n\
 ' > /app/start.sh && chmod +x /app/start.sh
 
 # Expose the port (for documentation, Railway handles the actual port mapping)
