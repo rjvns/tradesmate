@@ -287,6 +287,7 @@ function App() {
             isOpen={true}
             onClose={() => handleNavigate('dashboard')}
             title="Account & Settings"
+            className="modal-settings-v2"
             size="xl"
           >
             <SettingsScreen
