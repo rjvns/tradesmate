@@ -55,6 +55,16 @@ def create_app(test_config=None):
         log.critical(f"CRITICAL: An unexpected error occurred during DB initialization: {e}")
 
 
+    # --- Root Route (Essential for Railway healthcheck) ---
+    @app.route('/')
+    def home():
+        """Root route for Railway healthcheck"""
+        return jsonify({
+            'message': 'TradesMate API is running (database version)',
+            'status': 'healthy',
+            'timestamp': datetime.utcnow().isoformat()
+        })
+
     # --- Health Check Route (Essential for deployment) ---
     @app.route('/health')
     def health_check():
