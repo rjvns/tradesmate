@@ -32,6 +32,16 @@ function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // EMERGENCY: Log deployment verification
+  useEffect(() => {
+    console.log('🚨 EMERGENCY DEPLOYMENT CHECK:', {
+      version: '1.0.2-emergency',
+      timestamp: '2025-08-28T02:10:00Z',
+      modalFixDeployed: true,
+      buildHash: 'EMERGENCY-MODAL-FIX'
+    });
+  }, []);
+
   // Check for existing session on app load
   useEffect(() => {
     const checkAuth = async () => {
