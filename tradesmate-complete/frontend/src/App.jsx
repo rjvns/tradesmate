@@ -12,6 +12,7 @@ import QuotesPage from './components/QuotesPage';
 // UI Components
 import Button from './components/ui/Button';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
+import Modal from './components/ui/Modal';
 
 /**
  * TradesMate Main Application - 10/10 Design Implementation
@@ -282,9 +283,18 @@ function App() {
         )}
         
         {currentView === 'settings' && (
-          <div className="animate-fade-in">
-            <SettingsScreen user={user} onNavigate={handleNavigate} />
-          </div>
+          <Modal
+            isOpen={true}
+            onClose={() => handleNavigate('dashboard')}
+            title="Account & Settings"
+            size="xl"
+          >
+            <SettingsScreen
+              user={user}
+              onNavigate={handleNavigate}
+              onClose={() => handleNavigate('dashboard')}
+            />
+          </Modal>
         )}
       </main>
     </div>
