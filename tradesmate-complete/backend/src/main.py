@@ -1,20 +1,28 @@
 """
-TradesMate Flask Application
-AI-powered quotes and scheduling for UK tradespeople
+TradesMate Flask Application - Database Enabled Version
+Full database integration with user authentication and quote persistence
+Updated: 2025-08-28 01:55 UTC - Force redeploy
 """
 
 import os
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, session
 from flask_cors import CORS
-from datetime import datetime
-from database import db
+from datetime import datetime, timedelta
+
+import sys, os
+# Ensure we can import from the src directory
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
+print(f"Added to Python path: {current_dir}")  # Debug line
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 
 # Configuration
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['MAX_CONTENT_LENGTH'] = int(os.getenv('MAX_CONTENT_LENGTH', 26214400))
 
 # Database configuration for production (Railway)
 database_url = os.getenv('DATABASE_URL')
@@ -23,140 +31,253 @@ if database_url and database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///tradesmate.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['MAX_CONTENT_LENGTH'] = int(os.getenv('MAX_CONTENT_LENGTH', 26214400))
 
-# Initialize database with app
-db.init_app(app)
-
-# Create database tables (with error handling for production)
+# Initialize database
 try:
-    with app.app_context():
-        db.create_all()
-        print("Database tables created successfully")
+    from src.database import db
+    db.init_app(app)
+    print("Database module imported successfully")
 except Exception as e:
-    print(f"Database initialization warning: {e}")
-    # Continue anyway - tables might already exist
+    print(f"Database import error: {e}")
+    db = None
 
-# Import and register blueprints
-from routes.quotes import quotes_bp
-from routes.voice import voice_bp
-from routes.user import user_bp
-from routes.photo import photo_bp
-from routes.calendar import calendar_bp
-
-app.register_blueprint(quotes_bp, url_prefix='/api/quotes')
-app.register_blueprint(voice_bp, url_prefix='/api/voice')
-app.register_blueprint(user_bp, url_prefix='/api/user')
-app.register_blueprint(photo_bp, url_prefix='/api/photo')
-app.register_blueprint(calendar_bp, url_prefix='/api/calendar')
-
+# CRITICAL: Health check routes FIRST (before any complex initialization)
 @app.route('/')
 def home():
-    """Home route"""
+    """Home route - always works"""
     return jsonify({
         'message': 'TradesMate API',
-        'version': '1.0.0',
+        'version': '2.0.0',
         'status': 'running',
+        'database': 'enabled' if db else 'disabled',
         'timestamp': datetime.utcnow().isoformat()
     })
 
 @app.route('/health')
 def health_check():
-    """Health check endpoint for Railway"""
+    """Health check endpoint for Railway - ALWAYS works"""
     try:
-        return jsonify({
+        status = {
             'status': 'healthy',
             'timestamp': datetime.utcnow().isoformat(),
-            'message': 'TradesMate API is running'
-        }), 200
+            'message': 'TradesMate API is running (database version)',
+            'database': 'connected' if db else 'disconnected'
+        }
+        
+        # Test database connection if available
+        if db:
+            try:
+                db.session.execute('SELECT 1')
+                status['database'] = 'connected'
+            except Exception as e:
+                status['database'] = f'error: {str(e)}'
+        
+        return jsonify(status), 200
     except Exception as e:
         return jsonify({
             'status': 'error',
             'error': str(e)
         }), 500
 
+# Create database tables with error handling
+if db:
+    try:
+        with app.app_context():
+            db.create_all()
+            print("Database tables created successfully")
+    except Exception as e:
+        print(f"Database table creation warning: {e}")
+
+# Import and register authentication blueprint
+try:
+    from src.routes.auth import auth_bp
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    print("Auth blueprint registered successfully")
+except Exception as e:
+    print(f"Auth blueprint warning: {e}")
+
+# Dashboard route with database integration
 @app.route('/api/dashboard')
 def dashboard():
     """Dashboard data for the frontend"""
     try:
-        # Import models here to avoid circular imports
-        from models.user import User
-        from models.quote import Quote, Job
+        # Check if user is authenticated
+        user_id = session.get('user_id')
         
-        # Get or create demo user
-        user = User.query.first()
-        if not user:
-            user = User(
-                name="Demo Tradesperson",
-                email="demo@tradesmate.co.uk",
-                phone="07700 900123",
-                trade_type="Electrician",
-                hourly_rate=45.0,
-                company_name="Demo Electrical Services",
-                address="123 Demo Street, London, SW1A 1AA",
-                vat_number="GB123456789"
-            )
-            db.session.add(user)
-            db.session.commit()
-
-        # Get recent quotes (create some demo data if none exist)
-        recent_quotes = Quote.query.filter_by(user_id=user.id).order_by(Quote.created_at.desc()).limit(5).all()
-        
-        if not recent_quotes:
-            # Create demo quotes
-            demo_quotes = [
-                {
-                    'customer_name': 'Mrs. Johnson',
-                    'job_description': 'Kitchen tap replacement',
-                    'total_amount': 135.00,
-                    'status': 'sent'
+        if not db:
+            # Fallback to hardcoded data if database is not available
+            return jsonify({
+                'user': {
+                    'name': 'Demo User (No DB)', 
+                    'email': 'demo@tradesmate.co.uk',
+                    'company': 'Demo Services',
+                    'trade': 'General'
                 },
-                {
-                    'customer_name': 'Mr. Smith',
-                    'job_description': 'Bathroom light fitting',
-                    'total_amount': 89.50,
-                    'status': 'accepted'
+                'recent_quotes': [],
+                'upcoming_jobs': [],
+                'stats': {
+                    'totalRevenue': 0,
+                    'revenueChange': 0,
+                    'activeQuotes': 0,
+                    'quotesChange': 0,
+                    'completedJobs': 0,
+                    'jobsChange': 0,
+                    'customerSatisfaction': 0,
+                    'satisfactionChange': 0
                 }
-            ]
-            
-            for demo in demo_quotes:
-                quote = Quote(
-                    user_id=user.id,
-                    customer_name=demo['customer_name'],
-                    job_description=demo['job_description'],
-                    total_amount=demo['total_amount'],
-                    status=demo['status'],
-                    quote_number=f"TM-{datetime.now().strftime('%Y%m%d')}-{len(recent_quotes) + 1:04d}"
-                )
-                db.session.add(quote)
-            
-            db.session.commit()
-            recent_quotes = Quote.query.filter_by(user_id=user.id).order_by(Quote.created_at.desc()).limit(5).all()
+            })
+
+        if not user_id:
+            return jsonify({'error': 'Authentication required'}), 401
+
+        # Import models here to avoid circular imports
+        from src.models.user import User
+        from src.models.quote import Quote, Job
+        
+        user = User.query.get(user_id)
+        if not user:
+            session.clear()
+            return jsonify({'error': 'User not found'}), 404
+
+        # Get recent quotes
+        recent_quotes = Quote.query.filter_by(user_id=user.id).order_by(Quote.created_at.desc()).limit(5).all()
 
         # Get upcoming jobs
         upcoming_jobs = Job.query.filter_by(user_id=user.id).filter(
             Job.scheduled_date >= datetime.utcnow()
         ).order_by(Job.scheduled_date.asc()).limit(5).all()
 
+        # Calculate stats
+        total_quotes = Quote.query.filter_by(user_id=user.id).count()
+        accepted_quotes = Quote.query.filter_by(user_id=user.id, status='accepted').count()
+        total_revenue = db.session.query(db.func.sum(Quote.total_amount)).filter_by(
+            user_id=user.id, status='accepted'
+        ).scalar() or 0
+
         return jsonify({
             'user': user.to_dict(),
             'recent_quotes': [quote.to_dict() for quote in recent_quotes],
             'upcoming_jobs': [job.to_dict() for job in upcoming_jobs],
             'stats': {
-                'total_quotes': Quote.query.filter_by(user_id=user.id).count(),
-                'accepted_quotes': Quote.query.filter_by(user_id=user.id, status='accepted').count(),
-                'total_jobs': Job.query.filter_by(user_id=user.id).count(),
-                'completed_jobs': Job.query.filter_by(user_id=user.id, status='completed').count()
+                'totalRevenue': float(total_revenue),
+                'revenueChange': 0,  # Calculate this based on historical data
+                'activeQuotes': total_quotes,
+                'quotesChange': 0,  # Calculate this based on previous period
+                'completedJobs': Job.query.filter_by(user_id=user.id, status='completed').count(),
+                'jobsChange': 0,  # Calculate this based on previous period
+                'customerSatisfaction': 4.8,  # This would come from reviews/feedback
+                'satisfactionChange': 0
             }
         })
+        
+    except Exception as e:
+        print(f"Dashboard error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# Quotes routes with database integration
+@app.route('/api/quotes/', methods=['GET'])
+def get_quotes():
+    """Get all quotes for authenticated user"""
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'error': 'Authentication required'}), 401
+
+        if not db:
+            # Fallback to hardcoded data
+            return jsonify([
+                {
+                    'id': 1,
+                    'quote_number': 'TM-DEMO-001',
+                    'customer_name': 'Demo Customer',
+                    'job_description': 'Demo job (no database)',
+                    'total_amount': 100.00,
+                    'status': 'draft',
+                    'created_at': datetime.utcnow().isoformat()
+                }
+            ])
+
+        from src.models.quote import Quote
+        quotes = Quote.query.filter_by(user_id=user_id).order_by(Quote.created_at.desc()).all()
+        
+        return jsonify([quote.to_dict() for quote in quotes])
+        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/quotes/create', methods=['POST'])
+def create_quote():
+    """Create a new quote"""
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'error': 'Authentication required'}), 401
+
+        data = request.get_json()
+        
+        if not db:
+            # Fallback response when database is not available
+            return jsonify({
+                'success': True,
+                'message': 'Quote created (demo mode - no database)',
+                'quote': {
+                    'id': 999,
+                    'quote_number': f"TM-DEMO-{datetime.now().strftime('%Y%m%d')}",
+                    'customer_name': data.get('customer_name', 'Demo Customer'),
+                    'total_amount': 0,
+                    'status': 'draft'
+                }
+            }), 201
+
+        from src.models.quote import Quote
+        from services.ai_service import AIService
+        
+        # Calculate totals
+        labour_hours = float(data.get('labour_hours', 0))
+        labour_rate = float(data.get('labour_rate', 35))
+        materials_cost = float(data.get('materials_cost', 0))
+        
+        labour_cost = labour_hours * labour_rate
+        subtotal = labour_cost + materials_cost
+        vat_amount = subtotal * 0.20  # 20% VAT
+        total_amount = subtotal + vat_amount
+        
+        # Generate quote number
+        ai_service = AIService()
+        quote_number = ai_service.generate_quote_number()
+        
+        quote = Quote(
+            user_id=user_id,
+            customer_name=data.get('customer_name'),
+            customer_email=data.get('customer_email'),
+            customer_phone=data.get('customer_phone'),
+            customer_address=data.get('customer_address'),
+            job_description=data.get('job_description'),
+            job_type=data.get('job_type', 'general'),
+            urgency=data.get('urgency', 'normal'),
+            labour_hours=labour_hours,
+            labour_rate=labour_rate,
+            materials_cost=materials_cost,
+            subtotal=round(subtotal, 2),
+            vat_amount=round(vat_amount, 2),
+            total_amount=round(total_amount, 2),
+            quote_number=quote_number,
+            valid_until=datetime.utcnow() + timedelta(days=30)
+        )
+        
+        db.session.add(quote)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Quote created successfully',
+            'quote': quote.to_dict()
+        }), 201
+        
+    except Exception as e:
+        if db:
+            db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
-    with app.app_context():
-        # Import models here
-        from models.user import User
-        from models.quote import Quote, Job, Invoice
-        db.create_all()
     app.run(debug=True, host='0.0.0.0', port=5001)
