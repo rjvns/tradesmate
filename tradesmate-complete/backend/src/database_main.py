@@ -8,6 +8,9 @@ from flask import Flask, jsonify, request, session
 from flask_cors import CORS
 from datetime import datetime, timedelta
 
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__)))        # /app/backend/src
+
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
