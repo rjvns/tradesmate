@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mic, Calendar, FileText, Home, User, LogOut } from 'lucide-react';
+import { Mic, Calendar, FileText, Home, User, LogOut, X } from 'lucide-react';
 
 // Enhanced Components
 import EnhancedAuthScreen from './components/enhanced/EnhancedAuthScreen';
@@ -12,7 +12,7 @@ import QuotesPage from './components/QuotesPage';
 // UI Components
 import Button from './components/ui/Button';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
-import Modal from './components/ui/Modal';
+
 
 /**
  * TradesMate Main Application - 10/10 Design Implementation
@@ -298,19 +298,26 @@ function App() {
         )}
         
         {currentView === 'settings' && (
-          <Modal
-            isOpen={true}
-            onClose={() => handleNavigate('dashboard')}
-            title="Account & Settings"
-            className="modal-settings-v2"
-            size="xl"
-          >
-            <SettingsScreen
-              user={user}
-              onUpdateUser={handleUpdateUser}
-              onClose={() => handleNavigate('dashboard')}
-            />
-          </Modal>
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-900">Account & Settings</h2>
+                <button
+                  onClick={() => handleNavigate('dashboard')}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="overflow-y-auto max-h-[calc(90vh-8rem)]">
+                <SettingsScreen
+                  user={user}
+                  onUpdateUser={handleUpdateUser}
+                  onClose={() => handleNavigate('dashboard')}
+                />
+              </div>
+            </div>
+          </div>
         )}
       </main>
     </div>

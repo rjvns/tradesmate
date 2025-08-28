@@ -262,20 +262,20 @@ const QuoteForm = ({ quote, onSave, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-gradient-to-br from-slate-900 via-gray-900 to-blue-900 rounded-3xl shadow-2xl border border-white/20 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/10">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <FileText className="h-6 w-6 text-white" />
-            <h2 className="text-2xl font-black text-white">
+            <FileText className="h-6 w-6 text-gray-700" />
+            <h2 className="text-2xl font-black text-gray-900">
               {quote ? `Edit Quote ${quote.quote_number || ''}` : 'Create New Quote'}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
           >
-            <X className="h-6 w-6 text-white" />
+            <X className="h-6 w-6 text-gray-700" />
           </button>
         </div>
 
