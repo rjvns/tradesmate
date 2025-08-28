@@ -47,6 +47,21 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
     website: user?.website || ''
   });
 
+  // Update functions to prevent re-renders
+  const updateProfileData = (field, value) => {
+    setProfileData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const updateBusinessData = (field, value) => {
+    setBusinessData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const [businessData, setBusinessData] = useState({
     hourlyRate: user?.hourlyRate || '45',
     currency: user?.currency || 'GBP',
@@ -325,14 +340,14 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
         <Input
           label="First Name"
           value={profileData.firstName}
-          onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
+          onChange={(e) => updateProfileData('firstName', e.target.value)}
           error={errors.firstName}
           icon={User}
         />
         <Input
           label="Last Name"
           value={profileData.lastName}
-          onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
+          onChange={(e) => updateProfileData('lastName', e.target.value)}
           error={errors.lastName}
         />
       </div>
@@ -342,7 +357,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
           label="Email Address"
           type="email"
           value={profileData.email}
-          onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+          onChange={(e) => updateProfileData('email', e.target.value)}
           error={errors.email}
           icon={Mail}
         />
@@ -350,7 +365,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
           label="Phone Number"
           type="tel"
           value={profileData.phone}
-          onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+          onChange={(e) => updateProfileData('phone', e.target.value)}
           error={errors.phone}
           icon={Phone}
         />
@@ -359,7 +374,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
       <Input
         label="Company Name"
         value={profileData.companyName}
-        onChange={(e) => setProfileData({...profileData, companyName: e.target.value})}
+        onChange={(e) => updateProfileData('companyName', e.target.value)}
         error={errors.companyName}
         icon={Building}
       />
@@ -367,14 +382,14 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
       <Select
         label="Trade Type"
         value={profileData.tradeType}
-        onChange={(e) => setProfileData({...profileData, tradeType: e.target.value})}
+        onChange={(e) => updateProfileData('tradeType', e.target.value)}
         options={tradeTypes}
       />
 
       <TextArea
         label="Bio"
         value={profileData.bio}
-        onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+        onChange={(e) => updateProfileData('bio', e.target.value)}
         placeholder="Tell customers about your experience and expertise..."
       />
 
@@ -382,19 +397,19 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
         <Input
           label="Address"
           value={profileData.address}
-          onChange={(e) => setProfileData({...profileData, address: e.target.value})}
+          onChange={(e) => updateProfileData('address', e.target.value)}
         />
         <Input
           label="Postcode"
           value={profileData.postcode}
-          onChange={(e) => setProfileData({...profileData, postcode: e.target.value})}
+          onChange={(e) => updateProfileData('postcode', e.target.value)}
         />
       </div>
 
       <Input
         label="Website"
         value={profileData.website}
-        onChange={(e) => setProfileData({...profileData, website: e.target.value})}
+        onChange={(e) => updateProfileData('website', e.target.value)}
         placeholder="https://yourwebsite.com"
         icon={Globe}
       />
