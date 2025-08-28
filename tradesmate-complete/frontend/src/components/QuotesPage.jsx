@@ -663,6 +663,7 @@ const QuotesPage = ({ onCreateQuote }) => {
       {/* Quote Form Modal */}
       {showQuoteForm && (
         <QuoteForm
+          key={editingQuote ? `edit-${editingQuote.id}` : 'new-quote'}
           quote={editingQuote}
           onSave={(savedQuote) => {
             // Refresh quotes list

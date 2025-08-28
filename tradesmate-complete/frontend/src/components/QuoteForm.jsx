@@ -138,7 +138,7 @@ const QuoteForm = ({ quote, onSave, onClose }) => {
         materials_cost: '0'
       });
     }
-  }, [quote]);
+  }, [quote?.id, quote]);
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
