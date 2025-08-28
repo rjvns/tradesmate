@@ -9,7 +9,10 @@ from flask_cors import CORS
 from datetime import datetime, timedelta
 
 import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__)))        # /app/backend/src
+# Ensure we can import from the src directory
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
+print(f"Added to Python path: {current_dir}")  # Debug line
 
 # Initialize Flask app
 app = Flask(__name__)
