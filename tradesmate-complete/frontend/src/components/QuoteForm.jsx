@@ -17,13 +17,13 @@ import {
 // Move Input component outside to prevent recreation
 const FormInput = React.memo(({ label, type = 'text', value, onChange, error, placeholder, icon: Icon, ...props }) => (
   <div className="space-y-2">
-    <label className="block text-sm font-semibold text-white">
+    <label className="block text-sm font-semibold text-gray-700">
       {label}
     </label>
     <div className="relative">
       {Icon && (
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <Icon className="h-5 w-5 text-white/50" />
+          <Icon className="h-5 w-5 text-gray-400" />
         </div>
       )}
       <input
@@ -32,48 +32,48 @@ const FormInput = React.memo(({ label, type = 'text', value, onChange, error, pl
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className={`
-          block w-full rounded-2xl transition-all duration-300
+          block w-full rounded-lg transition-all duration-300
           ${Icon ? 'pl-12' : 'pl-4'} pr-4 py-3
-          text-white placeholder-white/50 font-medium
-          bg-white/10 backdrop-blur-md border border-white/20
-          focus:bg-white/15 focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/20
-          ${error ? 'border-red-400/50' : ''}
+          text-gray-900 placeholder-gray-400 font-medium
+          bg-white border border-gray-300
+          focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20
+          ${error ? 'border-red-400' : ''}
         `}
         {...props}
       />
     </div>
-    {error && <p className="text-sm text-red-300 font-medium">{error}</p>}
+    {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
   </div>
 ));
 
 const FormSelect = React.memo(({ label, value, onChange, options, error }) => (
   <div className="space-y-2">
-    <label className="block text-sm font-semibold text-white">
+    <label className="block text-sm font-semibold text-gray-700">
       {label}
     </label>
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
       className={`
-        block w-full rounded-2xl px-4 py-3 text-white font-medium
-        bg-white/10 backdrop-blur-md border border-white/20
-        focus:bg-white/15 focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/20
-        ${error ? 'border-red-400/50' : ''}
+        block w-full rounded-lg px-4 py-3 text-gray-900 font-medium
+        bg-white border border-gray-300
+        focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20
+        ${error ? 'border-red-400' : ''}
       `}
     >
       {options.map((option) => (
-        <option key={option.value} value={option.value} className="bg-gray-800 text-white">
+        <option key={option.value} value={option.value} className="bg-white text-gray-900">
           {option.label}
         </option>
       ))}
     </select>
-    {error && <p className="text-sm text-red-300 font-medium">{error}</p>}
+    {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
   </div>
 ));
 
 const FormTextArea = React.memo(({ label, value, onChange, error, placeholder, rows = 4 }) => (
   <div className="space-y-2">
-    <label className="block text-sm font-semibold text-white">
+    <label className="block text-sm font-semibold text-gray-700">
       {label}
     </label>
     <textarea
@@ -82,14 +82,14 @@ const FormTextArea = React.memo(({ label, value, onChange, error, placeholder, r
       placeholder={placeholder}
       rows={rows}
       className={`
-        block w-full rounded-2xl px-4 py-3 text-white placeholder-white/50 font-medium
-        bg-white/10 backdrop-blur-md border border-white/20
-        focus:bg-white/15 focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/20
+        block w-full rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 font-medium
+        bg-white border border-gray-300
+        focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20
         resize-none
-        ${error ? 'border-red-400/50' : ''}
+        ${error ? 'border-red-400' : ''}
       `}
     />
-    {error && <p className="text-sm text-red-300 font-medium">{error}</p>}
+    {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
   </div>
 ));
 
@@ -282,7 +282,7 @@ const QuoteForm = ({ quote, onSave, onClose }) => {
         <form onSubmit={handleSubmit} className="p-6 space-y-8">
           {/* Customer Information */}
           <div>
-            <h3 className="text-xl font-bold text-white mb-4">Customer Information</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Customer Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormInput
                 label="Customer Name"
@@ -323,7 +323,7 @@ const QuoteForm = ({ quote, onSave, onClose }) => {
 
           {/* Job Information */}
           <div>
-            <h3 className="text-xl font-bold text-white mb-4">Job Information</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Job Information</h3>
             <div className="space-y-6">
               <FormTextArea
                 label="Job Description"
@@ -352,7 +352,7 @@ const QuoteForm = ({ quote, onSave, onClose }) => {
 
           {/* Pricing Information */}
           <div>
-            <h3 className="text-xl font-bold text-white mb-4">Pricing</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Pricing</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <FormInput
                 label="Labour Hours"
@@ -388,26 +388,26 @@ const QuoteForm = ({ quote, onSave, onClose }) => {
           </div>
 
           {/* Quote Summary */}
-          <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-            <h3 className="text-xl font-bold text-white mb-4">Quote Summary</h3>
+          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Quote Summary</h3>
             <div className="space-y-3">
-              <div className="flex justify-between text-white">
+              <div className="flex justify-between text-gray-800">
                 <span>Labour ({formData.labour_hours} hours × £{formData.labour_rate}):</span>
                 <span>£{totals.labourCost}</span>
               </div>
-              <div className="flex justify-between text-white">
+              <div className="flex justify-between text-gray-800">
                 <span>Materials:</span>
                 <span>£{Number(formData.materials_cost || 0).toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-white border-t border-white/10 pt-3">
+              <div className="flex justify-between text-gray-800 border-t border-gray-300 pt-3">
                 <span>Subtotal:</span>
                 <span>£{totals.subtotal}</span>
               </div>
-              <div className="flex justify-between text-white">
+              <div className="flex justify-between text-gray-800">
                 <span>VAT (20%):</span>
                 <span>£{totals.vatAmount}</span>
               </div>
-              <div className="flex justify-between text-white font-bold text-xl border-t border-white/10 pt-3">
+              <div className="flex justify-between text-gray-900 font-bold text-xl border-t border-gray-300 pt-3">
                 <span>Total:</span>
                 <span>£{totals.total}</span>
               </div>
@@ -415,18 +415,18 @@ const QuoteForm = ({ quote, onSave, onClose }) => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end space-x-4 pt-4 border-t border-white/10">
+          <div className="flex items-center justify-end space-x-4 pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2 text-white/70 hover:text-white font-medium transition-colors"
+              className="px-6 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white font-semibold px-8 py-3 rounded-2xl transition-all flex items-center space-x-2 hover:scale-105"
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white font-semibold px-8 py-3 rounded-lg transition-all flex items-center space-x-2"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
