@@ -71,7 +71,8 @@ def create_app(test_config=None):
         db_status = "disconnected"
         try:
             from .database import db
-            db.session.execute('SELECT 1')
+            from sqlalchemy import text
+            db.session.execute(text('SELECT 1'))
             db_status = "connected"
             log.info("Health check: Database connection successful.")
         except Exception as e:
@@ -92,7 +93,7 @@ def create_app(test_config=None):
             from .routes import auth, quotes # Assuming you have __init__.py in routes
             
             # Import models to ensure they are registered with SQLAlchemy
-            from .models import user, quote
+            from .models import User, Quote
 
             app.register_blueprint(auth.auth_bp)
             app.register_blueprint(quotes.quotes_bp)
