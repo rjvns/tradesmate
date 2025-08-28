@@ -62,6 +62,33 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
     }));
   };
 
+  const updateSecurityData = (field, value) => {
+    setSecurityData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const updateNotificationData = (field, value) => {
+    setNotificationData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const updateWorkingHours = (day, field, value) => {
+    setBusinessData(prev => ({
+      ...prev,
+      workingHours: {
+        ...prev.workingHours,
+        [day]: {
+          ...prev.workingHours[day],
+          [field]: value
+        }
+      }
+    }));
+  };
+
   const [businessData, setBusinessData] = useState({
     hourlyRate: user?.hourlyRate || '45',
     currency: user?.currency || 'GBP',
@@ -423,13 +450,13 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
           label="Hourly Rate (£)"
           type="number"
           value={businessData.hourlyRate}
-          onChange={(e) => setBusinessData({...businessData, hourlyRate: e.target.value})}
+          onChange={(e) => updateBusinessData('hourlyRate', e.target.value)}
           icon={DollarSign}
         />
         <Input
           label="VAT Number"
           value={businessData.vatNumber}
-          onChange={(e) => setBusinessData({...businessData, vatNumber: e.target.value})}
+          onChange={(e) => updateBusinessData('vatNumber', e.target.value)}
           placeholder="GB123456789"
         />
       </div>
@@ -437,7 +464,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
       <Toggle
         label="VAT Registered"
         checked={businessData.isVatRegistered}
-        onChange={(checked) => setBusinessData({...businessData, isVatRegistered: checked})}
+        onChange={(checked) => updateBusinessData('isVatRegistered', checked)}
         description="Include VAT calculations in quotes"
       />
 
@@ -450,13 +477,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
                 <Toggle
                   label={day.charAt(0).toUpperCase() + day.slice(1)}
                   checked={hours.enabled}
-                  onChange={(checked) => setBusinessData({
-                    ...businessData,
-                    workingHours: {
-                      ...businessData.workingHours,
-                      [day]: {...hours, enabled: checked}
-                    }
-                  })}
+                  onChange={(checked) => updateWorkingHours(day, 'enabled', checked)}
                 />
               </div>
               {hours.enabled && (
@@ -464,26 +485,14 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
                   <input
                     type="time"
                     value={hours.start}
-                    onChange={(e) => setBusinessData({
-                      ...businessData,
-                      workingHours: {
-                        ...businessData.workingHours,
-                        [day]: {...hours, start: e.target.value}
-                      }
-                    })}
+                    onChange={(e) => updateWorkingHours(day, 'start', e.target.value)}
                     className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white"
                   />
                   <span className="text-white/60">to</span>
                   <input
                     type="time"
                     value={hours.end}
-                    onChange={(e) => setBusinessData({
-                      ...businessData,
-                      workingHours: {
-                        ...businessData.workingHours,
-                        [day]: {...hours, end: e.target.value}
-                      }
-                    })}
+                    onChange={(e) => updateWorkingHours(day, 'end', e.target.value)}
                     className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white"
                   />
                 </div>
@@ -504,7 +513,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
             label="Current Password"
             type="password"
             value={securityData.currentPassword}
-            onChange={(e) => setSecurityData({...securityData, currentPassword: e.target.value})}
+            onChange={(e) => updateSecurityData('currentPassword', e.target.value)}
             error={errors.currentPassword}
             icon={Lock}
           />
@@ -512,7 +521,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
             label="New Password"
             type={showPassword ? 'text' : 'password'}
             value={securityData.newPassword}
-            onChange={(e) => setSecurityData({...securityData, newPassword: e.target.value})}
+            onChange={(e) => updateSecurityData('newPassword', e.target.value)}
             error={errors.newPassword}
             icon={Lock}
           />
@@ -520,7 +529,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
             label="Confirm New Password"
             type={showPassword ? 'text' : 'password'}
             value={securityData.confirmPassword}
-            onChange={(e) => setSecurityData({...securityData, confirmPassword: e.target.value})}
+            onChange={(e) => updateSecurityData('confirmPassword', e.target.value)}
             error={errors.confirmPassword}
             icon={Lock}
           />
@@ -539,7 +548,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
         <Toggle
           label="Two-Factor Authentication"
           checked={securityData.twoFactorEnabled}
-          onChange={(checked) => setSecurityData({...securityData, twoFactorEnabled: checked})}
+          onChange={(checked) => updateSecurityData('twoFactorEnabled', checked)}
           description="Add an extra layer of security to your account"
         />
       </div>
@@ -551,35 +560,35 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
       <Toggle
         label="Email Notifications"
         checked={notificationData.emailNotifications}
-        onChange={(checked) => setNotificationData({...notificationData, emailNotifications: checked})}
+        onChange={(checked) => updateNotificationData('emailNotifications', checked)}
         description="Receive notifications via email"
       />
       
       <Toggle
         label="SMS Notifications"
         checked={notificationData.smsNotifications}
-        onChange={(checked) => setNotificationData({...notificationData, smsNotifications: checked})}
+        onChange={(checked) => updateNotificationData('smsNotifications', checked)}
         description="Receive notifications via text message"
       />
       
       <Toggle
         label="Quote Reminders"
         checked={notificationData.quoteReminders}
-        onChange={(checked) => setNotificationData({...notificationData, quoteReminders: checked})}
+        onChange={(checked) => updateNotificationData('quoteReminders', checked)}
         description="Get reminders for pending quotes"
       />
       
       <Toggle
         label="Push Notifications"
         checked={notificationData.pushNotifications}
-        onChange={(checked) => setNotificationData({...notificationData, pushNotifications: checked})}
+        onChange={(checked) => updateNotificationData('pushNotifications', checked)}
         description="Receive push notifications in your browser"
       />
       
       <Toggle
         label="Marketing Emails"
         checked={notificationData.marketingEmails}
-        onChange={(checked) => setNotificationData({...notificationData, marketingEmails: checked})}
+        onChange={(checked) => updateNotificationData('marketingEmails', checked)}
         description="Receive updates about new features and tips"
       />
     </div>
