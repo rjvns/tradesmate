@@ -74,6 +74,11 @@ function App() {
     setCurrentView(view);
   };
 
+  const handleUpdateUser = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem('tradesmate_user', JSON.stringify(updatedUser));
+  };
+
   // Loading screen
   if (isLoading) {
     return (
@@ -292,7 +297,7 @@ function App() {
           >
             <SettingsScreen
               user={user}
-              onNavigate={handleNavigate}
+              onUpdateUser={handleUpdateUser}
               onClose={() => handleNavigate('dashboard')}
             />
           </Modal>
