@@ -34,7 +34,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///tradesmate.db
 
 # Initialize database
 try:
-    from database import db
+    from .database import db
     db.init_app(app)
     print("Database module imported successfully")
 except Exception as e:
@@ -90,7 +90,7 @@ if db:
 
 # Import and register authentication blueprint
 try:
-    from routes.auth import auth_bp
+    from .routes.auth import auth_bp
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     print("Auth blueprint registered successfully")
 except Exception as e:
@@ -131,8 +131,8 @@ def dashboard():
             return jsonify({'error': 'Authentication required'}), 401
 
         # Import models here to avoid circular imports
-        from models.user import User
-        from models.quote import Quote, Job
+        from .models.user import User
+        from .models.quote import Quote, Job
         
         user = User.query.get(user_id)
         if not user:
@@ -197,7 +197,7 @@ def get_quotes():
                 }
             ])
 
-        from models.quote import Quote
+        from .models.quote import Quote
         quotes = Quote.query.filter_by(user_id=user_id).order_by(Quote.created_at.desc()).all()
         
         return jsonify([quote.to_dict() for quote in quotes])
@@ -229,7 +229,7 @@ def create_quote():
                 }
             }), 201
 
-        from models.quote import Quote
+        from .models.quote import Quote
         from services.ai_service import AIService
         
         # Calculate totals
