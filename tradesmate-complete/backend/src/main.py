@@ -78,37 +78,58 @@ def create_app(test_config=None):
     # --- Root Route (Essential for Railway healthcheck) ---
     @app.route('/')
     def home():
-        """Root route for Railway healthcheck"""
-        return jsonify({
-            'message': 'TradesMate API is running (database version)',
-            'status': 'healthy',
-            'timestamp': datetime.utcnow().isoformat()
-        })
+        """Root route for Railway healthcheck - Simple and robust"""
+        try:
+            return jsonify({
+                'message': 'TradesMate API is running',
+                'status': 'healthy',
+                'timestamp': datetime.utcnow().isoformat(),
+                'version': '1.0.0'
+            })
+        except Exception as e:
+            log.error(f"Root route error: {e}")
+            return jsonify({
+                'message': 'TradesMate API basic check',
+                'status': 'error',
+                'error': str(e),
+                'timestamp': datetime.utcnow().isoformat()
+            }), 500
 
     # --- Health Check Route (Essential for deployment) ---
     @app.route('/health')
     def health_check():
-        db_status = "disconnected"
+        """Comprehensive health check with graceful error handling"""
         try:
-            # Use the already initialized db
+            db_status = "disconnected"
             try:
-                from .database import db
-            except ImportError:
-                from database import db
-            from sqlalchemy import text
-            db.session.execute(text('SELECT 1'))
-            db_status = "connected"
-            log.info("Health check: Database connection successful.")
-        except Exception as e:
-            db_status = f"error: {e}"
-            log.error(f"Health check: Database connection failed. Error: {e}")
+                # Use the already initialized db
+                try:
+                    from .database import db
+                except ImportError:
+                    from database import db
+                from sqlalchemy import text
+                db.session.execute(text('SELECT 1'))
+                db_status = "connected"
+                log.info("Health check: Database connection successful.")
+            except Exception as e:
+                db_status = f"error: {str(e)[:100]}"  # Truncate long error messages
+                log.warning(f"Health check: Database connection failed: {e}")
 
-        return jsonify({
-            'status': 'healthy',
-            'message': 'TradesMate API is running (database version)',
-            'timestamp': datetime.utcnow().isoformat(),
-            'database': db_status
-        })
+            return jsonify({
+                'status': 'healthy',
+                'message': 'TradesMate API is running',
+                'timestamp': datetime.utcnow().isoformat(),
+                'database': db_status,
+                'version': '1.0.0'
+            })
+        except Exception as e:
+            log.error(f"Health check route error: {e}")
+            return jsonify({
+                'status': 'error',
+                'message': 'Health check failed',
+                'error': str(e),
+                'timestamp': datetime.utcnow().isoformat()
+            }), 500
 
     # --- Register Blueprints and Create Tables ---
     with app.app_context():
