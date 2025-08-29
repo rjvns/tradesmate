@@ -20,13 +20,16 @@ def create_app(test_config=None):
     CORS(app, supports_credentials=True)
 
     # --- Configuration ---
-    # Allow dev fallback but enforce in production
+    # Allow dev fallback and auto-generate for Railway if needed
     secret_key = os.getenv('SECRET_KEY')
     flask_env = os.getenv('FLASK_ENV', 'development')
     
     if not secret_key:
         if flask_env == 'production':
-            raise ValueError("SECRET_KEY environment variable must be set in production")
+            # Auto-generate a secret key for Railway deployment
+            import secrets
+            secret_key = secrets.token_hex(32)
+            log.warning("SECRET_KEY not provided. Generated temporary key for this session. For production, set SECRET_KEY environment variable in Railway.")
         else:
             secret_key = 'dev-secret-key-for-local-development-only'
             log.warning("Using development SECRET_KEY. Set SECRET_KEY environment variable for production.")
