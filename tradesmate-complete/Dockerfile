@@ -1,50 +1,80 @@
-FROM python:3.11-slim
+# Multi-stage build for smaller production image
+FROM python:3.11-slim as builder
 
-# Set working directory
-WORKDIR /app
-# Build timestamp: 2025-01-27 - Production Deploy
-
-# Install system dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+# Install system dependencies for building
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
-COPY backend/requirements.txt .
+# Create virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Install Python dependencies
+# Copy and install Python dependencies
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the entire backend directory
+# Production stage
+FROM python:3.11-slim
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    libpq5 \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Set working directory
+WORKDIR /app
+
+# Copy application code
 COPY backend/ ./backend/
 
 # Set environment variables
 ENV FLASK_ENV=production
 ENV PYTHONPATH=/app/backend
+ENV PYTHONUNBUFFERED=1
 
-# Create a simple startup script that uses Railway's PORT variable
+# Create non-root user for security
+RUN useradd --create-home --shell /bin/bash app
+RUN chown -R app:app /app
+USER app
+
+# Create optimized startup script
 RUN echo '#!/bin/bash\n\
 cd /app/backend\n\
-echo "=== TradesMate API Startup Debug Info ==="\n\
-echo "Starting TradesMate API on port ${PORT:-8000}..."\n\
+echo "=== TradesMate API Production Startup ==="\n\
+echo "Port: ${PORT:-8000}"\n\
 echo "Environment: $FLASK_ENV"\n\
 echo "Python path: $PYTHONPATH"\n\
-echo "Current directory: $(pwd)"\n\
-echo "Python version: $(python --version)"\n\
-echo "Checking src/main.py exists: $(ls -la src/main.py 2>/dev/null || echo \"NOT FOUND\")"\n\
-echo "Testing import: $(python -c \"from src.main import create_app; print(\"Success: create_app imported\")\" 2>&1)"\n\
-echo "Starting gunicorn..."\n\
-exec gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 1 --timeout 120 --access-logfile - --error-logfile - --log-level debug "src.main:create_app"\n\
+echo "Starting gunicorn with optimized settings..."\n\
+exec gunicorn --bind 0.0.0.0:${PORT:-8000} \\\n\
+    --workers 2 \\\n\
+    --worker-class gevent \\\n\
+    --worker-connections 1000 \\\n\
+    --timeout 120 \\\n\
+    --keepalive 5 \\\n\
+    --max-requests 1000 \\\n\
+    --max-requests-jitter 100 \\\n\
+    --access-logfile - \\\n\
+    --error-logfile - \\\n\
+    --log-level info \\\n\
+    "src.main:create_app"\n\
 ' > /app/start.sh && chmod +x /app/start.sh
 
-# Expose the port (for documentation, Railway handles the actual port mapping)
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
+
 EXPOSE 8000
-
-# Remove the Docker healthcheck; we will rely on Railway's health checks
-# HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
-#  CMD curl -f http://localhost:8000/health || exit 1
-
-# Start the application
 CMD ["/app/start.sh"]
 
