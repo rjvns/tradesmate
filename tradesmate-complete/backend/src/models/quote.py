@@ -3,7 +3,10 @@ Quote, Job, and Invoice models for TradesMate
 """
 
 from datetime import datetime, timedelta
-from ..database import db
+try:
+    from ..database import db
+except ImportError:
+    from database import db
 
 class Quote(db.Model):
     """Quote model for customer quotes"""

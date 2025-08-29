@@ -54,6 +54,16 @@ In Vercel dashboard, add:
 VITE_API_URL=https://your-railway-app-url.railway.app
 ```
 
+### Additional Environment Variables
+```
+# Backend (Railway) - Additional vars
+PYTHONPATH=/app/backend
+MAX_CONTENT_LENGTH=26214400
+
+# Frontend (Vercel) - Additional vars  
+VITE_APP_VERSION=1.0.0
+```
+
 ### 3. Deploy
 Vercel will automatically deploy and provide a URL like:
 `https://tradesmate-frontend.vercel.app`

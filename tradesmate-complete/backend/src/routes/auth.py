@@ -4,8 +4,12 @@ Authentication routes for TradesMate
 
 from flask import Blueprint, request, jsonify, session
 from datetime import datetime
-from ..database import db
-from ..models.user import User
+try:
+    from ..database import db
+    from ..models.user import User
+except ImportError:
+    from database import db
+    from models.user import User
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 

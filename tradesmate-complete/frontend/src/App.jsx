@@ -32,14 +32,9 @@ function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // EMERGENCY: Log deployment verification
+  // Application initialization
   useEffect(() => {
-    console.log('🚨 EMERGENCY DEPLOYMENT CHECK:', {
-      version: '1.0.2-emergency',
-      timestamp: '2025-08-28T02:10:00Z',
-      modalFixDeployed: true,
-      buildHash: 'EMERGENCY-MODAL-FIX'
-    });
+    // Performance monitoring could be added here
   }, []);
 
   // Check for existing session on app load
@@ -115,7 +110,7 @@ function App() {
 
   // Main application layout
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col">
       {/* Navigation Bar */}
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -277,7 +272,7 @@ function App() {
         )}
         
         {currentView === 'calendar' && (
-          <div className="min-h-screen flex items-center justify-center bg-gray-50 animate-fade-in">
+          <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-900 animate-fade-in">
             <div className="text-center">
               <Calendar className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h2 className="text-2xl font-semibold text-gray-900 mb-2">
@@ -299,12 +294,12 @@ function App() {
         
         {currentView === 'settings' && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+            <div className="bg-white text-gray-900 rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
                 <h2 className="text-xl font-semibold text-gray-900">Account & Settings</h2>
                 <button
                   onClick={() => handleNavigate('dashboard')}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors"
                 >
                   <X className="h-5 w-5" />
                 </button>

@@ -38,33 +38,8 @@ class PhotoIntelligenceService:
                 'method': 'demo_ocr'
             }
             
-            # Real implementation would be:
-            # if hasattr(image_file, 'read'):
-            #     with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
-            #         image_file.seek(0)
-            #         temp_file.write(image_file.read())
-            #         temp_file_path = temp_file.name
-            #     
-            #     try:
-            #         # Open image with PIL
-            #         image = Image.open(temp_file_path)
-            #         
-            #         # Extract text using Tesseract
-            #         text = pytesseract.image_to_string(image, config='--psm 6')
-            #         confidence = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
-            #         
-            #         # Calculate average confidence
-            #         confidences = [int(conf) for conf in confidence['conf'] if int(conf) > 0]
-            #         avg_confidence = sum(confidences) / len(confidences) / 100 if confidences else 0
-            #         
-            #         return {
-            #             'success': True,
-            #             'text': text.strip(),
-            #             'confidence': avg_confidence,
-            #             'method': 'tesseract_ocr'
-            #         }
-            #     finally:
-            #         os.unlink(temp_file_path)
+            # Production implementation would use Tesseract OCR
+            # See documentation for setup instructions
             
         except Exception as e:
             return {

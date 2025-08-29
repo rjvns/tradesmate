@@ -20,8 +20,19 @@ def create_app(test_config=None):
     CORS(app, supports_credentials=True)
 
     # --- Configuration ---
+    # Allow dev fallback but enforce in production
+    secret_key = os.getenv('SECRET_KEY')
+    flask_env = os.getenv('FLASK_ENV', 'development')
+    
+    if not secret_key:
+        if flask_env == 'production':
+            raise ValueError("SECRET_KEY environment variable must be set in production")
+        else:
+            secret_key = 'dev-secret-key-for-local-development-only'
+            log.warning("Using development SECRET_KEY. Set SECRET_KEY environment variable for production.")
+    
     app.config.from_mapping(
-        SECRET_KEY=os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production'),
+        SECRET_KEY=secret_key,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         MAX_CONTENT_LENGTH=int(os.getenv('MAX_CONTENT_LENGTH', 26214400))
     )
@@ -35,8 +46,10 @@ def create_app(test_config=None):
             log.info("Production database configured.")
         else:
             # Fallback for local development if DATABASE_URL is not set
-            db_path = os.path.join(app.instance_path, 'tradesmate-local.db')
-            os.makedirs(app.instance_path, exist_ok=True)
+            # Use consistent path relative to backend directory
+            backend_root = os.path.dirname(os.path.dirname(__file__))
+            db_path = os.path.join(backend_root, 'instance', 'tradesmate.db')
+            os.makedirs(os.path.dirname(db_path), exist_ok=True)
             app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
             log.info(f"Using local SQLite database at {db_path}")
     else:
@@ -45,7 +58,11 @@ def create_app(test_config=None):
 
     # --- Database Initialization ---
     try:
-        from .database import db
+        # Handle both relative and absolute imports
+        try:
+            from .database import db
+        except ImportError:
+            from database import db
         db.init_app(app)
         log.info("Database initialized successfully.")
     except ImportError as e:
@@ -70,7 +87,11 @@ def create_app(test_config=None):
     def health_check():
         db_status = "disconnected"
         try:
-            from .database import db
+            # Use the already initialized db
+            try:
+                from .database import db
+            except ImportError:
+                from database import db
             from sqlalchemy import text
             db.session.execute(text('SELECT 1'))
             db_status = "connected"
@@ -89,11 +110,15 @@ def create_app(test_config=None):
     # --- Register Blueprints and Create Tables ---
     with app.app_context():
         try:
-            from .database import db
-            from .routes import auth, quotes # Assuming you have __init__.py in routes
-            
-            # Import models to ensure they are registered with SQLAlchemy
-            from .models import User, Quote
+            # Handle flexible imports for both deployment and local dev
+            try:
+                from .database import db
+                from .routes import auth, quotes
+                from .models import User, Quote
+            except ImportError:
+                from database import db
+                from routes import auth, quotes
+                from models import User, Quote
 
             app.register_blueprint(auth.auth_bp)
             app.register_blueprint(quotes.quotes_bp)

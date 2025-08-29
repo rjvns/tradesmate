@@ -3,7 +3,12 @@ User model for TradesMate
 """
 
 from datetime import datetime
-from ..database import db
+import hashlib
+import os
+try:
+    from ..database import db
+except ImportError:
+    from database import db
 from werkzeug.security import generate_password_hash, check_password_hash
 
 class User(db.Model):
@@ -27,8 +32,8 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     def set_password(self, password):
-        """Set password hash"""
-        self.password_hash = generate_password_hash(password)
+        """Set password hash using pbkdf2 for Python 3.9 compatibility"""
+        self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
     
     def check_password(self, password):
         """Check password against hash"""

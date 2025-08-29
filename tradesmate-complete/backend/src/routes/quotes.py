@@ -3,9 +3,14 @@ Quote management routes for TradesMate
 """
 from flask import Blueprint, request, jsonify, session
 from datetime import datetime, timedelta
-from ..database import db
-from ..models.quote import Quote
-from ..services.ai_service import AIService
+try:
+    from ..database import db
+    from ..models.quote import Quote
+    from ..services.ai_service import AIService
+except ImportError:
+    from database import db
+    from models.quote import Quote
+    from services.ai_service import AIService
 
 quotes_bp = Blueprint('quotes', __name__, url_prefix='/api/quotes')
 
