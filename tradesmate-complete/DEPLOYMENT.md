@@ -23,11 +23,44 @@
 ### 3. Set Environment Variables
 In Railway dashboard, add these environment variables:
 
+**Required Variables:**
 ```
-SECRET_KEY=your-super-secret-key-here
+SECRET_KEY=your-super-secret-key-here-64-chars-minimum
 OPENAI_API_KEY=your-openai-api-key-or-demo-key
 FLASK_ENV=production
 ```
+
+**Optional Variables:**
+```
+MAX_CONTENT_LENGTH=26214400
+PYTHONPATH=/app/backend
+```
+
+**How to Add Environment Variables in Railway:**
+1. Go to your Railway project dashboard
+2. Click on your service (backend)
+3. Go to "Variables" tab
+4. Click "New Variable"
+5. Add each variable name and value
+6. Click "Add" for each variable
+
+**Generate a Secure SECRET_KEY:**
+```bash
+# Option 1: Python
+python -c "import secrets; print(secrets.token_hex(32))"
+
+# Option 2: OpenSSL
+openssl rand -hex 32
+
+# Option 3: Online generator (use reputable source)
+# Generate 64-character hexadecimal string
+```
+
+**⚠️ Important Notes:**
+- SECRET_KEY should be 64+ characters for production security
+- Never commit SECRET_KEY to git
+- If not set, app will auto-generate temporary key (not recommended for production)
+- DATABASE_URL is automatically provided by Railway PostgreSQL
 
 ### 4. Deploy and Seed Data
 1. Railway will automatically deploy when you push to GitHub
@@ -115,18 +148,58 @@ curl https://your-railway-app.railway.app/api/quotes/
 ## Troubleshooting
 
 ### Backend Issues
-- Check Railway logs for errors
-- Verify environment variables are set
-- Ensure database is connected
+
+**🚫 "SECRET_KEY environment variable must be set"**
+- **Cause:** Missing SECRET_KEY in Railway environment variables
+- **Solution:** Add SECRET_KEY variable in Railway dashboard (see section 3 above)
+- **Quick Fix:** App will auto-generate temporary key, but set proper one for production
+
+**🚫 "service unavailable" - Healthcheck Failed**
+- **Cause:** App not starting properly
+- **Check:** Railway deployment logs for specific error messages
+- **Common Issues:**
+  - Missing environment variables
+  - Import/module errors
+  - Database connection failures
+  - Port binding problems
+
+**🚫 Import/Module Errors**
+- **Cause:** Missing `__init__.py` files or incorrect Python paths
+- **Solution:** Ensure all directories have `__init__.py` files
+- **Verify:** Check `PYTHONPATH=/app/backend` is set
+
+**🚫 Database Connection Issues**
+- **Cause:** PostgreSQL not connected or configured
+- **Solution:** Ensure Railway PostgreSQL addon is added
+- **Verify:** `DATABASE_URL` environment variable exists
 
 ### Frontend Issues
 - Check Vercel build logs
 - Verify `VITE_API_URL` is correct
 - Check browser console for CORS errors
+- Ensure CSS build completed (should be ~41KB, not 9 lines)
 
 ### Database Issues
 - Run `python seed_production.py` in Railway console
 - Check if tables exist in Railway database
+- Verify PostgreSQL addon is properly connected
+
+### Quick Deployment Checklist
+✅ **Environment Variables Set:**
+- [ ] SECRET_KEY (64+ characters)
+- [ ] OPENAI_API_KEY
+- [ ] FLASK_ENV=production
+
+✅ **Railway Configuration:**
+- [ ] PostgreSQL database added
+- [ ] Latest code pushed to GitHub
+- [ ] Dockerfile builds successfully
+- [ ] Healthcheck passes on `/` route
+
+✅ **File Structure:**
+- [ ] All directories have `__init__.py` files
+- [ ] `src/main.py` has `create_app()` function
+- [ ] Gunicorn command uses `src.main:create_app` (no parentheses)
 
 ## Monitoring
 
