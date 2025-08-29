@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y \
     libpq5 \
     tesseract-ocr \
     tesseract-ocr-eng \
-    libgl1-mesa-glx \
+    libgl1-mesa-dri \
     libglib2.0-0 \
     curl \
     && rm -rf /var/lib/apt/lists/*
