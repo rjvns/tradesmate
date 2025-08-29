@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 # Set working directory
 WORKDIR /app
-# Build timestamp: 2025-08-27
+# Build timestamp: 2025-01-27 - Production Deploy
 
 # Install system dependencies
 RUN apt-get update && \
