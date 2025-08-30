@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import SettingsScreen from './SettingsScreen';
-import TestInput from './TestInput';
 
 function Settings() {
   const { user, updateUser } = useAuth();
@@ -27,14 +26,11 @@ function Settings() {
   }
 
   return (
-    <div>
-      <TestInput />
-      <SettingsScreen 
-        user={user}
-        onUpdateUser={handleUpdateUser}
-        onClose={handleClose}
-      />
-    </div>
+    <SettingsScreen 
+      user={user}
+      onUpdateUser={handleUpdateUser}
+      onClose={handleClose}
+    />
   );
 }
 

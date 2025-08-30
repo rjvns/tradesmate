@@ -234,107 +234,83 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
     }
   };
 
-  const Input = ({ label, type = 'text', value, onChange, error, placeholder, icon: Icon, ...props }) => {
-    const handleChange = (e) => {
-      console.log('Input change:', e.target.value); // Debug log
-      if (onChange) {
-        onChange(e);
-      }
-    };
-
-    return (
-      <div className="space-y-2">
-        <label className="block text-sm font-semibold text-white">
-          {label}
-        </label>
-        <div className="relative">
-          {Icon && (
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Icon className="h-5 w-5 text-white/50" />
-            </div>
-          )}
-          <input
-            type={type}
-            value={value || ''}
-            onChange={handleChange}
-            onInput={handleChange}
-            placeholder={placeholder}
-            autoComplete="off"
-            spellCheck="false"
-            className={`
-              block w-full rounded-2xl transition-all duration-300
-              ${Icon ? 'pl-12' : 'pl-4'} pr-4 py-3
-              text-white placeholder-white/50 font-medium
-              bg-white/10 backdrop-blur-md border border-white/20
-              focus:bg-white/15 focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/20
-              ${error ? 'border-red-400/50' : ''}
-            `}
-            {...props}
-          />
-        </div>
-        {error && <p className="text-sm text-red-300 font-medium">{error}</p>}
-      </div>
-    );
-  };
-
-  const Select = ({ label, value, onChange, options, error }) => (
+  const Input = React.memo(({ label, type = 'text', value, onChange, error, placeholder, icon: Icon, ...props }) => (
     <div className="space-y-2">
-      <label className="block text-sm font-semibold text-white">
+      <label className="block text-sm font-semibold text-gray-700">
+        {label}
+      </label>
+      <div className="relative">
+        {Icon && (
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <Icon className="h-5 w-5 text-gray-400" />
+          </div>
+        )}
+        <input
+          type={type}
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className={`
+            block w-full rounded-lg transition-all duration-300
+            ${Icon ? 'pl-12' : 'pl-4'} pr-4 py-3
+            text-gray-900 placeholder-gray-400 font-medium
+            bg-white border border-gray-300
+            focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20
+            ${error ? 'border-red-400' : ''}
+          `}
+          {...props}
+        />
+      </div>
+      {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
+    </div>
+  ));
+
+  const Select = React.memo(({ label, value, onChange, options, error }) => (
+    <div className="space-y-2">
+      <label className="block text-sm font-semibold text-gray-700">
         {label}
       </label>
       <select
         value={value}
-        onChange={onChange}
+        onChange={(e) => onChange(e.target.value)}
         className={`
-          block w-full rounded-2xl px-4 py-3 text-white font-medium
-          bg-white/10 backdrop-blur-md border border-white/20
-          focus:bg-white/15 focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/20
-          ${error ? 'border-red-400/50' : ''}
+          block w-full rounded-lg px-4 py-3 text-gray-900 font-medium
+          bg-white border border-gray-300
+          focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20
+          ${error ? 'border-red-400' : ''}
         `}
       >
         {options.map((option) => (
-          <option key={option.value} value={option.value} className="bg-gray-800 text-white">
+          <option key={option.value} value={option.value} className="bg-white text-gray-900">
             {option.label}
           </option>
         ))}
       </select>
-      {error && <p className="text-sm text-red-300 font-medium">{error}</p>}
+      {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
     </div>
-  );
+  ));
 
-  const TextArea = ({ label, value, onChange, error, placeholder, rows = 4 }) => {
-    const handleChange = (e) => {
-      console.log('TextArea change:', e.target.value); // Debug log
-      if (onChange) {
-        onChange(e);
-      }
-    };
-
-    return (
-      <div className="space-y-2">
-        <label className="block text-sm font-semibold text-white">
-          {label}
-        </label>
-        <textarea
-          value={value || ''}
-          onChange={handleChange}
-          onInput={handleChange}
-          placeholder={placeholder}
-          rows={rows}
-          autoComplete="off"
-          spellCheck="false"
-          className={`
-            block w-full rounded-2xl px-4 py-3 text-white placeholder-white/50 font-medium
-            bg-white/10 backdrop-blur-md border border-white/20
-            focus:bg-white/15 focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/20
-            resize-none
-            ${error ? 'border-red-400/50' : ''}
-          `}
-        />
-        {error && <p className="text-sm text-red-300 font-medium">{error}</p>}
-      </div>
-    );
-  };
+  const TextArea = React.memo(({ label, value, onChange, error, placeholder, rows = 4 }) => (
+    <div className="space-y-2">
+      <label className="block text-sm font-semibold text-gray-700">
+        {label}
+      </label>
+      <textarea
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        rows={rows}
+        className={`
+          block w-full rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 font-medium
+          bg-white border border-gray-300
+          focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20
+          resize-none
+          ${error ? 'border-red-400' : ''}
+        `}
+      />
+      {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
+    </div>
+  ));
 
   const Toggle = ({ label, checked, onChange, description }) => (
     <div className="flex items-start space-x-3">
@@ -396,14 +372,14 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
         <Input
           label="First Name"
           value={profileData.firstName}
-          onChange={(e) => updateProfileData('firstName', e.target.value)}
+          onChange={(value) => updateProfileData('firstName', value)}
           error={errors.firstName}
           icon={User}
         />
         <Input
           label="Last Name"
           value={profileData.lastName}
-          onChange={(e) => updateProfileData('lastName', e.target.value)}
+          onChange={(value) => updateProfileData('lastName', value)}
           error={errors.lastName}
         />
       </div>
@@ -413,7 +389,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
           label="Email Address"
           type="email"
           value={profileData.email}
-          onChange={(e) => updateProfileData('email', e.target.value)}
+          onChange={(value) => updateProfileData('email', value)}
           error={errors.email}
           icon={Mail}
         />
@@ -421,7 +397,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
           label="Phone Number"
           type="tel"
           value={profileData.phone}
-          onChange={(e) => updateProfileData('phone', e.target.value)}
+          onChange={(value) => updateProfileData('phone', value)}
           error={errors.phone}
           icon={Phone}
         />
@@ -430,7 +406,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
       <Input
         label="Company Name"
         value={profileData.companyName}
-        onChange={(e) => updateProfileData('companyName', e.target.value)}
+        onChange={(value) => updateProfileData('companyName', value)}
         error={errors.companyName}
         icon={Building}
       />
@@ -438,14 +414,14 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
       <Select
         label="Trade Type"
         value={profileData.tradeType}
-        onChange={(e) => updateProfileData('tradeType', e.target.value)}
+        onChange={(value) => updateProfileData('tradeType', value)}
         options={tradeTypes}
       />
 
       <TextArea
         label="Bio"
         value={profileData.bio}
-        onChange={(e) => updateProfileData('bio', e.target.value)}
+        onChange={(value) => updateProfileData('bio', value)}
         placeholder="Tell customers about your experience and expertise..."
       />
 
@@ -453,19 +429,19 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
         <Input
           label="Address"
           value={profileData.address}
-          onChange={(e) => updateProfileData('address', e.target.value)}
+          onChange={(value) => updateProfileData('address', value)}
         />
         <Input
           label="Postcode"
           value={profileData.postcode}
-          onChange={(e) => updateProfileData('postcode', e.target.value)}
+          onChange={(value) => updateProfileData('postcode', value)}
         />
       </div>
 
       <Input
         label="Website"
         value={profileData.website}
-        onChange={(e) => updateProfileData('website', e.target.value)}
+        onChange={(value) => updateProfileData('website', value)}
         placeholder="https://yourwebsite.com"
         icon={Globe}
       />
@@ -479,13 +455,13 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
           label="Hourly Rate (£)"
           type="number"
           value={businessData.hourlyRate}
-          onChange={(e) => updateBusinessData('hourlyRate', e.target.value)}
+          onChange={(value) => updateBusinessData('hourlyRate', value)}
           icon={DollarSign}
         />
         <Input
           label="VAT Number"
           value={businessData.vatNumber}
-          onChange={(e) => updateBusinessData('vatNumber', e.target.value)}
+          onChange={(value) => updateBusinessData('vatNumber', value)}
           placeholder="GB123456789"
         />
       </div>
@@ -687,24 +663,24 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-gradient-to-br from-slate-900 via-gray-900 to-blue-900 rounded-3xl shadow-2xl border border-white/20 max-w-4xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 max-w-4xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/10">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <Settings className="h-6 w-6 text-white" />
-            <h2 className="text-2xl font-black text-white">Account & Settings</h2>
+            <Settings className="h-6 w-6 text-gray-700" />
+            <h2 className="text-2xl font-black text-gray-900">Account & Settings</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
           >
-            <X className="h-6 w-6 text-white" />
+            <X className="h-6 w-6 text-gray-700" />
           </button>
         </div>
 
         <div className="flex">
           {/* Sidebar */}
-          <div className="w-64 bg-white/5 border-r border-white/10 p-4">
+          <div className="w-64 bg-gray-50 border-r border-gray-200 p-4">
             <nav className="space-y-2">
               {tabs.map(({ id, label, icon: Icon }) => (
                 <button
@@ -714,7 +690,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
                     w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all
                     ${activeTab === id 
                       ? 'bg-blue-600 text-white shadow-lg' 
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
                     }
                   `}
                 >
@@ -736,10 +712,10 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-white/10 p-6 flex items-center justify-between">
+        <div className="border-t border-gray-200 p-6 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             {successMessage && (
-              <div className="flex items-center space-x-2 text-green-400">
+              <div className="flex items-center space-x-2 text-green-600">
                 <Check className="h-4 w-4" />
                 <span className="text-sm font-medium">{successMessage}</span>
               </div>
@@ -748,7 +724,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
           <div className="flex space-x-3">
             <button
               onClick={onClose}
-              className="px-6 py-2 text-white/70 hover:text-white font-medium transition-colors"
+              className="px-6 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors"
             >
               Cancel
             </button>
