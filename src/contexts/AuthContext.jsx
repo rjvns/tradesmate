@@ -45,12 +45,18 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('userData');
   };
 
+  const updateUser = (userData) => {
+    setUser(userData);
+    localStorage.setItem('userData', JSON.stringify(userData));
+  };
+
   const value = {
     isAuthenticated,
     user,
     loading,
     login,
-    logout
+    logout,
+    updateUser
   };
 
   return (

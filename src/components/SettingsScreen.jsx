@@ -242,9 +242,10 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
         )}
         <input
           type={type}
-          value={value}
+          value={value || ''}
           onChange={onChange}
           placeholder={placeholder}
+          autoComplete="off"
           className={`
             block w-full rounded-2xl transition-all duration-300
             ${Icon ? 'pl-12' : 'pl-4'} pr-4 py-3
@@ -291,10 +292,11 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
         {label}
       </label>
       <textarea
-        value={value}
+        value={value || ''}
         onChange={onChange}
         placeholder={placeholder}
         rows={rows}
+        autoComplete="off"
         className={`
           block w-full rounded-2xl px-4 py-3 text-white placeholder-white/50 font-medium
           bg-white/10 backdrop-blur-md border border-white/20
