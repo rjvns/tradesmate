@@ -354,11 +354,11 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
         />
       </button>
       <div className="flex-1">
-        <label className="text-sm font-semibold text-white cursor-pointer" onClick={() => onChange(!checked)}>
+        <label className="text-sm font-semibold text-gray-900 cursor-pointer" onClick={() => onChange(!checked)}>
           {label}
         </label>
         {description && (
-          <p className="text-xs text-white/60 mt-1">{description}</p>
+          <p className="text-xs text-gray-600 mt-1">{description}</p>
         )}
       </div>
     </div>
@@ -369,11 +369,11 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
       {/* Profile Image */}
       <div className="text-center">
         <div className="relative inline-block">
-          <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center overflow-hidden border-4 border-white/20">
+          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden border-4 border-gray-200">
             {profileImage ? (
               <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
             ) : (
-              <User className="h-12 w-12 text-white/60" />
+              <User className="h-12 w-12 text-gray-400" />
             )}
           </div>
           <button
@@ -498,10 +498,10 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
       />
 
       <div>
-        <h3 className="text-lg font-bold text-white mb-4">Working Hours</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-4">Working Hours</h3>
         <div className="space-y-4">
           {Object.entries(businessData.workingHours).map(([day, hours]) => (
-            <div key={day} className="flex items-center space-x-4 p-4 bg-white/5 rounded-2xl">
+            <div key={day} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-2xl">
               <div className="w-20">
                 <Toggle
                   label={day.charAt(0).toUpperCase() + day.slice(1)}
@@ -515,14 +515,14 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
                     type="time"
                     value={hours.start}
                     onChange={(e) => updateWorkingHours(day, 'start', e.target.value)}
-                    className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white"
+                    className="bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900"
                   />
-                  <span className="text-white/60">to</span>
+                  <span className="text-gray-600">to</span>
                   <input
                     type="time"
                     value={hours.end}
                     onChange={(e) => updateWorkingHours(day, 'end', e.target.value)}
-                    className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white"
+                    className="bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900"
                   />
                 </div>
               )}
@@ -536,7 +536,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
   const renderSecurityTab = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-bold text-white mb-4">Change Password</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-4">Change Password</h3>
         <div className="space-y-4">
           <FormInput
             label="Current Password"
@@ -565,7 +565,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="flex items-center space-x-2 text-white/70 hover:text-white transition-colors"
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
           >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             <span className="text-sm">{showPassword ? 'Hide' : 'Show'} passwords</span>
@@ -573,7 +573,7 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
         </div>
       </div>
 
-      <div className="border-t border-white/10 pt-6">
+      <div className="border-t border-gray-200 pt-6">
         <Toggle
           label="Two-Factor Authentication"
           checked={securityData.twoFactorEnabled}
@@ -627,12 +627,12 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Google Calendar */}
-        <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+        <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
           <div className="flex items-center space-x-3 mb-4">
             <Calendar className="h-8 w-8 text-blue-400" />
             <div>
-              <h3 className="font-bold text-white">Google Calendar</h3>
-              <p className="text-sm text-white/60">Sync your appointments</p>
+              <h3 className="font-bold text-gray-900">Google Calendar</h3>
+              <p className="text-sm text-gray-600">Sync your appointments</p>
             </div>
           </div>
           <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-xl transition-colors">
@@ -641,12 +641,12 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
         </div>
 
         {/* QuickBooks */}
-        <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+        <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
           <div className="flex items-center space-x-3 mb-4">
             <CreditCard className="h-8 w-8 text-green-400" />
             <div>
-              <h3 className="font-bold text-white">QuickBooks</h3>
-              <p className="text-sm text-white/60">Accounting integration</p>
+              <h3 className="font-bold text-gray-900">QuickBooks</h3>
+              <p className="text-sm text-gray-600">Accounting integration</p>
             </div>
           </div>
           <button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-xl transition-colors">
@@ -655,12 +655,12 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
         </div>
 
         {/* Stripe */}
-        <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+        <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
           <div className="flex items-center space-x-3 mb-4">
             <CreditCard className="h-8 w-8 text-purple-400" />
             <div>
-              <h3 className="font-bold text-white">Stripe</h3>
-              <p className="text-sm text-white/60">Payment processing</p>
+              <h3 className="font-bold text-gray-900">Stripe</h3>
+              <p className="text-sm text-gray-600">Payment processing</p>
             </div>
           </div>
           <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-xl transition-colors">
@@ -669,12 +669,12 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
         </div>
 
         {/* WhatsApp */}
-        <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+        <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
           <div className="flex items-center space-x-3 mb-4">
             <Smartphone className="h-8 w-8 text-green-400" />
             <div>
-              <h3 className="font-bold text-white">WhatsApp Business</h3>
-              <p className="text-sm text-white/60">Customer messaging</p>
+              <h3 className="font-bold text-gray-900">WhatsApp Business</h3>
+              <p className="text-sm text-gray-600">Customer messaging</p>
             </div>
           </div>
           <button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-xl transition-colors">
