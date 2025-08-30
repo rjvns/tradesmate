@@ -234,83 +234,109 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
     }
   };
 
-  const Input = React.memo(({ label, type = 'text', value, onChange, error, placeholder, icon: Icon, ...props }) => (
-    <div className="space-y-2">
-      <label className="block text-sm font-semibold text-gray-700">
-        {label}
-      </label>
-      <div className="relative">
-        {Icon && (
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Icon className="h-5 w-5 text-gray-400" />
-          </div>
-        )}
-        <input
-          type={type}
-          value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
+  const Input = ({ label, type = 'text', value, onChange, error, placeholder, icon: Icon, ...props }) => {
+    console.log('Input render:', label, value); // Debug log
+    
+    const handleChange = (e) => {
+      const newValue = e.target.value;
+      console.log('Input onChange:', label, newValue); // Debug log
+      onChange(newValue);
+    };
+
+    return (
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-700">
+          {label}
+        </label>
+        <div className="relative">
+          {Icon && (
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Icon className="h-5 w-5 text-gray-400" />
+            </div>
+          )}
+          <input
+            type={type}
+            value={value || ''}
+            onChange={handleChange}
+            placeholder={placeholder}
+            className={`
+              block w-full rounded-lg transition-all duration-300
+              ${Icon ? 'pl-12' : 'pl-4'} pr-4 py-3
+              text-gray-900 placeholder-gray-400 font-medium
+              bg-white border border-gray-300
+              focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20
+              ${error ? 'border-red-400' : ''}
+            `}
+            {...props}
+          />
+        </div>
+        {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
+      </div>
+    );
+  };
+
+  const Select = ({ label, value, onChange, options, error }) => {
+    const handleChange = (e) => {
+      const newValue = e.target.value;
+      console.log('Select onChange:', label, newValue); // Debug log
+      onChange(newValue);
+    };
+
+    return (
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-700">
+          {label}
+        </label>
+        <select
+          value={value}
+          onChange={handleChange}
           className={`
-            block w-full rounded-lg transition-all duration-300
-            ${Icon ? 'pl-12' : 'pl-4'} pr-4 py-3
-            text-gray-900 placeholder-gray-400 font-medium
+            block w-full rounded-lg px-4 py-3 text-gray-900 font-medium
             bg-white border border-gray-300
             focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20
             ${error ? 'border-red-400' : ''}
           `}
-          {...props}
-        />
+        >
+          {options.map((option) => (
+            <option key={option.value} value={option.value} className="bg-white text-gray-900">
+              {option.label}
+            </option>
+          ))}
+        </select>
+        {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
       </div>
-      {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
-    </div>
-  ));
+    );
+  };
 
-  const Select = React.memo(({ label, value, onChange, options, error }) => (
-    <div className="space-y-2">
-      <label className="block text-sm font-semibold text-gray-700">
-        {label}
-      </label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={`
-          block w-full rounded-lg px-4 py-3 text-gray-900 font-medium
-          bg-white border border-gray-300
-          focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20
-          ${error ? 'border-red-400' : ''}
-        `}
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value} className="bg-white text-gray-900">
-            {option.label}
-          </option>
-        ))}
-      </select>
-      {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
-    </div>
-  ));
+  const TextArea = ({ label, value, onChange, error, placeholder, rows = 4 }) => {
+    const handleChange = (e) => {
+      const newValue = e.target.value;
+      console.log('TextArea onChange:', label, newValue); // Debug log
+      onChange(newValue);
+    };
 
-  const TextArea = React.memo(({ label, value, onChange, error, placeholder, rows = 4 }) => (
-    <div className="space-y-2">
-      <label className="block text-sm font-semibold text-gray-700">
-        {label}
-      </label>
-      <textarea
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        rows={rows}
-        className={`
-          block w-full rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 font-medium
-          bg-white border border-gray-300
-          focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20
-          resize-none
-          ${error ? 'border-red-400' : ''}
-        `}
-      />
-      {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
-    </div>
-  ));
+    return (
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-700">
+          {label}
+        </label>
+        <textarea
+          value={value || ''}
+          onChange={handleChange}
+          placeholder={placeholder}
+          rows={rows}
+          className={`
+            block w-full rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 font-medium
+            bg-white border border-gray-300
+            focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20
+            resize-none
+            ${error ? 'border-red-400' : ''}
+          `}
+        />
+        {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
+      </div>
+    );
+  };
 
   const Toggle = ({ label, checked, onChange, description }) => (
     <div className="flex items-start space-x-3">
