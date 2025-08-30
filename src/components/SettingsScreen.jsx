@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { 
   User, 
   Building, 
@@ -47,34 +47,39 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
     website: user?.website || ''
   });
 
-  // Update functions to prevent re-renders
-  const updateProfileData = (field, value) => {
-    setProfileData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+  // Update functions to prevent re-renders (memoized)
+  const updateProfileData = useCallback((field, value) => {
+    console.log('Updating profile data:', field, value); // Debug log
+    setProfileData(prev => {
+      const newData = {
+        ...prev,
+        [field]: value
+      };
+      console.log('New profile data:', newData); // Debug log
+      return newData;
+    });
+  }, []);
 
-  const updateBusinessData = (field, value) => {
+  const updateBusinessData = useCallback((field, value) => {
     setBusinessData(prev => ({
       ...prev,
       [field]: value
     }));
-  };
+  }, []);
 
-  const updateSecurityData = (field, value) => {
+  const updateSecurityData = useCallback((field, value) => {
     setSecurityData(prev => ({
       ...prev,
       [field]: value
     }));
-  };
+  }, []);
 
-  const updateNotificationData = (field, value) => {
+  const updateNotificationData = useCallback((field, value) => {
     setNotificationData(prev => ({
       ...prev,
       [field]: value
     }));
-  };
+  }, []);
 
   const updateWorkingHours = (day, field, value) => {
     setBusinessData(prev => ({
@@ -229,37 +234,48 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
     }
   };
 
-  const Input = ({ label, type = 'text', value, onChange, error, placeholder, icon: Icon, ...props }) => (
-    <div className="space-y-2">
-      <label className="block text-sm font-semibold text-white">
-        {label}
-      </label>
-      <div className="relative">
-        {Icon && (
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Icon className="h-5 w-5 text-white/50" />
-          </div>
-        )}
-        <input
-          type={type}
-          value={value || ''}
-          onChange={onChange}
-          placeholder={placeholder}
-          autoComplete="off"
-          className={`
-            block w-full rounded-2xl transition-all duration-300
-            ${Icon ? 'pl-12' : 'pl-4'} pr-4 py-3
-            text-white placeholder-white/50 font-medium
-            bg-white/10 backdrop-blur-md border border-white/20
-            focus:bg-white/15 focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/20
-            ${error ? 'border-red-400/50' : ''}
-          `}
-          {...props}
-        />
+  const Input = ({ label, type = 'text', value, onChange, error, placeholder, icon: Icon, ...props }) => {
+    const handleChange = (e) => {
+      console.log('Input change:', e.target.value); // Debug log
+      if (onChange) {
+        onChange(e);
+      }
+    };
+
+    return (
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-white">
+          {label}
+        </label>
+        <div className="relative">
+          {Icon && (
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Icon className="h-5 w-5 text-white/50" />
+            </div>
+          )}
+          <input
+            type={type}
+            value={value || ''}
+            onChange={handleChange}
+            onInput={handleChange}
+            placeholder={placeholder}
+            autoComplete="off"
+            spellCheck="false"
+            className={`
+              block w-full rounded-2xl transition-all duration-300
+              ${Icon ? 'pl-12' : 'pl-4'} pr-4 py-3
+              text-white placeholder-white/50 font-medium
+              bg-white/10 backdrop-blur-md border border-white/20
+              focus:bg-white/15 focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/20
+              ${error ? 'border-red-400/50' : ''}
+            `}
+            {...props}
+          />
+        </div>
+        {error && <p className="text-sm text-red-300 font-medium">{error}</p>}
       </div>
-      {error && <p className="text-sm text-red-300 font-medium">{error}</p>}
-    </div>
-  );
+    );
+  };
 
   const Select = ({ label, value, onChange, options, error }) => (
     <div className="space-y-2">
@@ -286,28 +302,39 @@ const SettingsScreen = ({ user, onUpdateUser, onClose }) => {
     </div>
   );
 
-  const TextArea = ({ label, value, onChange, error, placeholder, rows = 4 }) => (
-    <div className="space-y-2">
-      <label className="block text-sm font-semibold text-white">
-        {label}
-      </label>
-      <textarea
-        value={value || ''}
-        onChange={onChange}
-        placeholder={placeholder}
-        rows={rows}
-        autoComplete="off"
-        className={`
-          block w-full rounded-2xl px-4 py-3 text-white placeholder-white/50 font-medium
-          bg-white/10 backdrop-blur-md border border-white/20
-          focus:bg-white/15 focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/20
-          resize-none
-          ${error ? 'border-red-400/50' : ''}
-        `}
-      />
-      {error && <p className="text-sm text-red-300 font-medium">{error}</p>}
-    </div>
-  );
+  const TextArea = ({ label, value, onChange, error, placeholder, rows = 4 }) => {
+    const handleChange = (e) => {
+      console.log('TextArea change:', e.target.value); // Debug log
+      if (onChange) {
+        onChange(e);
+      }
+    };
+
+    return (
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-white">
+          {label}
+        </label>
+        <textarea
+          value={value || ''}
+          onChange={handleChange}
+          onInput={handleChange}
+          placeholder={placeholder}
+          rows={rows}
+          autoComplete="off"
+          spellCheck="false"
+          className={`
+            block w-full rounded-2xl px-4 py-3 text-white placeholder-white/50 font-medium
+            bg-white/10 backdrop-blur-md border border-white/20
+            focus:bg-white/15 focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/20
+            resize-none
+            ${error ? 'border-red-400/50' : ''}
+          `}
+        />
+        {error && <p className="text-sm text-red-300 font-medium">{error}</p>}
+      </div>
+    );
+  };
 
   const Toggle = ({ label, checked, onChange, description }) => (
     <div className="flex items-start space-x-3">
