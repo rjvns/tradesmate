@@ -52,13 +52,25 @@ def create_quote():
         quote = Quote(
             user_id=user_id,
             customer_name=data.get('customer_name'),
+            customer_email=data.get('customer_email'),
+            customer_phone=data.get('customer_phone'),
+            customer_address=data.get('customer_address'),
             job_description=data.get('job_description'),
+            job_type=data.get('job_type', 'General'),
+            urgency=data.get('urgency', 'normal'),
             labour_hours=labour_hours,
             labour_rate=labour_rate,
             materials_cost=materials_cost,
+            subtotal=round(subtotal, 2),
+            vat_rate=0.20,
+            vat_amount=round(vat_amount, 2),
             total_amount=round(total_amount, 2),
+            materials=data.get('materials'),  # JSON string of materials list
             quote_number=ai_service.generate_quote_number(),
-            valid_until=datetime.utcnow() + timedelta(days=30)
+            valid_until=datetime.utcnow() + timedelta(days=30),
+            voice_transcript=data.get('voice_transcript'),
+            ai_confidence=data.get('ai_confidence'),
+            processing_notes=data.get('processing_notes')
         )
         
         db.session.add(quote)
